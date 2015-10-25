@@ -51,3 +51,4 @@ def initialize() {
 
 // TODO: implement event handlers
 // This is a test for Git. 
+// This is another test for Git ... Making changes in Git instead of Smartthings IDE
