@@ -36,7 +36,7 @@ preferences {
 		input "lightSensor1", "capability.illuminanceMeasurement", title: "Where?", required: true
 	}
     section("Lux Value") {
-		input name: "luxValue", title: "Lux Value 0 - 1000?", type: "number", required: true
+		input name: "luxValue", title: "Lux Value 0 - 1000?", type: "number", range: "0..1000", defaultValue: 500
 	}
 	section("Turn on a light...") {
 		input "switch1", "capability.switch", multiple: true, required: false
@@ -45,7 +45,7 @@ preferences {
 		input "dimmer1", "capability.switchLevel", multiple: true, required: false
 	}
     section("Dimmer Value") {
-		input name: "dimmerValue", title: "dimmer Value 10% - 100%?", type: "number", required: true
+		input name: "dimmerValue", title: "dimmer Value 10% - 100%?", type: "number", range: "10..100", defaultValue: 50
 	}
 }
 
