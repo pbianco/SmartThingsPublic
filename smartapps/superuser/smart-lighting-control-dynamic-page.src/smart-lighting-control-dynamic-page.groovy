@@ -60,7 +60,7 @@ def pageTwo() {
         }
         if (delayAnswer == "Yes"){
         section ("Motion Settings") { 
-        	input(name: "offDelay", type: "number", title: "Delay after motion stops", defaultValue: 1)
+        	input(name: "delayMinutes", type: "number", title: "Delay after motion stops", defaultValue: 1)
         }
         }
         if (dimmer) {
