@@ -53,14 +53,14 @@ def pageTwo() {
     
     	if (luxAnswer == "Yes") { 
         section ("Lux Settings"){
-        	input(name: "luxSensor", type: "capability.illuminanceMeasurement", title: "Lux Sensor")
+            input(name: "luxSensor", type: "capability.illuminanceMeasurement", title: "Lux Sensor")
             input(name: "luxLevel", type: "number", defaultValue: 50, title: "Lux Level to turn lights on",
             	range: "10..100")
         }
         }
         if (delayAnswer == "Yes"){
         section ("Motion Settings") { 
-        	input(name: "offDelay", type: "number", title: "Delay after motion stops", defaultValue: 1)
+            input(name: "offDelay", type: "number", title: "Delay after motion stops", defaultValue: 1)
         }
         }
         if (dimmer) {
