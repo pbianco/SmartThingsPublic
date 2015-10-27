@@ -86,7 +86,6 @@ def updated() {
 }
 
 def initialize() {
-	// TODO: subscribe to attributes, devices, locations, etc.
     
     subscribe(motionSensor, "motion", motionHandler)
 }
