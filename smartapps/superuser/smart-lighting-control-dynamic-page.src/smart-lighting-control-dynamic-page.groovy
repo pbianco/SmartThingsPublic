@@ -88,8 +88,18 @@ def updated() {
 def initialize() {
     
     subscribe(motionSensor, "motion", motionHandler)
+    subscribe(luxSensor,"illuminance",luxHandler)
 }
 
 def motionHandler (evt) { 
 // This will handle events from the motion sensors
+}
+
+def luxHandler (evt) {
+     if ( luxSensor != null) { 
+             state.luminance = evt.integerValue
+     }
+   else {
+      state.luminance = 0
+   }
 }
