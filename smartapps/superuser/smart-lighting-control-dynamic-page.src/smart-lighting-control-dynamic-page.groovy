@@ -35,10 +35,10 @@ def pageOne() {
 	section {            
             input(name: "motionSensor", type: "capability.motionSensor",
             	title: "Motion sensor(s) used to active lights", description: null, multiple: true,
-                required: false)            
-            input(name: "switch", type: "capability.switch", title: "Switches to turn on/off",
+                required: true)            
+            input(name: "switch1", type: "capability.switch", title: "Switches to turn on/off",
             	description: null, multiple: true, required: false)
-            input(name: "dimmer", type: "capability.switchLevel", title: "Dimmers to turn on/off",
+            input(name: "dimmer1", type: "capability.switchLevel", title: "Dimmers to turn on/off",
             	description: null, multiple: true, required: false)
             input(name: "luxAnswer", type: "enum", title: "Lux Sensor (Yes/No)?",
             	options: ["No","Yes"])
@@ -54,8 +54,8 @@ def pageTwo() {
     	if (luxAnswer == "Yes") { 
         section ("Lux Settings"){
         	input(name: "luxSensor", type: "capability.illuminanceMeasurement", title: "Lux Sensor")
-            input(name: "luxLevel", type: "number", defaultValue: 50, title: "Lux Level to turn lights on",
-            	range: "10..100")
+            input(name: "luxLevel", type: "number", defaultValue: 500, title: "Lux Level to turn lights on",
+            	range: "10..1000")
         }
         }
         if (delayAnswer == "Yes"){
@@ -63,7 +63,7 @@ def pageTwo() {
         	input(name: "delayMinutes", type: "number", title: "Delay after motion stops", defaultValue: 1)
         }
         }
-        if (dimmer) {
+        if (dimmer1) {
         section("Dimmer Settings") {
             input(name: "dimmerLevel", type: "number", title: "Dimmer level you would like dimmer(s) to turn on", 
             	description: "Range 5 - 100 ... Default 50", defaultValue: 50, range: "5..100")
@@ -92,7 +92,90 @@ def initialize() {
 }
 
 def motionHandler (evt) { 
-// This will handle events from the motion sensors
+// This handle events from the motion sensors
+
+	def lightSensorState = state.luminance
+    def lastStatus = state.lastStatus
+    
+    log.debug "luxAnswer = ${luxAnswer}"
+    log.debug "SENSOR = $lightSensorState"
+    log.debug "luxLevel=$luxLevel"
+    
+    if (evt.value == "active" && (lightSensorState < luxLevel || luxAnswer == "No")) {
+       log.debug "There is motion"
+       state.motionStopTime = now()
+       if (dimmer1 != null && state.dimmerLastStatus != "on") {
+       log.trace "dimmerLevel = ${dimmerLevel}"
+          dimmer1.setLevel(dimmerLevel)
+          state.dimmerLastStatus = "on"
+          state.lastStatus = "on"
+       }
+       if (switch1 != null && state.swirchLastStatus != "on") {
+          log.trace "light.on() ... [luminance: ${lightSensorState}]"
+          switch1.on()
+          state.switchLastStatus = "on"
+          state.lastStatus = "on"
+       }
+	}
+    else { if (evt.value == "inactive" && state.lastStatus != "off") {
+       log.debug "There is no motion"
+       state.motionStopTime = now()
+       if (delayMinutes) {
+          runIn(delayMinutes*60, turnOffMotionAfterDelay, [overwrite: false])
+       }
+       else {
+          turnOffMotionNoDelay ()
+       }
+       }
+    }
+}
+
+def turnOffMotionNoDelay() {
+// This module executes to turn of lights with no delay
+	log.debug "Turn off Motion No Delay"
+
+	if ( dimmer1 != null ) {
+       dimmer1.setLevel ( 0 )
+       state.dimmerLastStatus = "off"
+       state.lastStatus = "off"
+    }
+    if ( switch1 != null ) {
+       switch1.off () 
+       state.switchLastStatus = "off"
+       state.lastStatus = "off"
+    }
+}
+
+def turnOffMotionAfterDelay () {
+   
+   log.debug "turnOffMotionAfterDelay has been called"
+   log.trace "state.motionStopTime= ${state.motionStopTime}"
+   log.trace "In turnOffMotionAfterDelay, state.motionStopTime = $state.motionStopTime, state.lastStatus = $state.lastStatus"
+   
+   if (state.motionStopTime && state.dimmerLastStatus != "off" && dimmer1 != null) {
+		def elapsed = now() - state.motionStopTime
+        def delayTime = ((delayMinutes * 60000L) - 2000)
+        log.trace "delayTime= $delayTime"
+        log.trace "elapsed = $elapsed"
+		if (elapsed >= delayTime) {
+        	log.debug "Turning off lights"
+			dimmer1.setLevel(0)
+			state.dimmerLastStatus = "off"
+            state.lastStatus = "off"
+		}
+	}
+    if (state.motionStopTime && state.switchLastStatus != "off" && switch1 != null) {
+		def elapsed = now() - state.motionStopTime
+        def delayTime = ((delayMinutes * 60000L) - 2000)
+        log.trace "elapsed = $elapsed"
+        log.trace "delayTime= $delayTime"
+		if (elapsed >= delayTime) {
+        	log.debug "Turning off lights"
+			switch1.off()
+			state.switchLastStatus = "off"
+            state.lastStatus = "off"
+		}
+	}
 }
 
 def luxHandler (evt) {
