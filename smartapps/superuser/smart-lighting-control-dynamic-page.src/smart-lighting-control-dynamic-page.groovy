@@ -26,8 +26,13 @@ definition(
 
 preferences {
    page(name: "pageOne", title: "Select Sensors, Switches and Dimmers", nextPage: "pageTwo", uninstall: true)
-   page(name: "pageTwo", title: "Configuration Options / Settings", uninstall: true, install: true)
-   		
+   page(name: "pageTwo", title: "Configuration Options / Settings", nextPage: "pageThree", uninstall: true)
+   page(name: "pageThree", title: "Done please install", install: true, uninstall: true){
+      section([mobileOnly:true]) {
+            label title: "Assign a name", required: false
+            mode title: "Set for specific mode(s)", required: false
+        }
+   }
 }
 
 def pageOne() {
